@@ -1,0 +1,104 @@
+import gym
+import random
+import numpy as np
+from random import randrange
+from random import randrange
+from random import random
+import math
+import cv2
+# Frame list collector
+frames = []
+
+
+gamma = 0.99
+# code for the two only actions in Pong
+UP_ACTION = 2
+DOWN_ACTION = 3
+wins = 0 
+losses = 0
+# initializing our environment
+env = gym.make("Pong-v0")
+# beginning of an episode
+observation = env.reset()
+prev_input = None
+x_train,y_train,y_losses,rewards= [],[],[],[]
+reward_sum = 0
+episode_number = 0
+STEPS = 200000
+frameToChange = 60
+restarted=1
+for i in range(STEPS):
+    current_input = observation
+    resize_without_score=cv2.resize(observation[34:194], dsize=(80, 80))
+    gray = cv2.cvtColor(resize_without_score, cv2.COLOR_BGR2GRAY)
+    (thresh, im_bw) = cv2.threshold(gray,  128, 255, cv2.THRESH_BINARY)
+    c_observation_resize_bw = im_bw
+    c_observation_resize_bw=c_observation_resize_bw/255
+    #bwGif = np.append(bwGif,im_bw)
+    if(prev_input is not None):
+        diff_images = c_observation_resize_bw - prev_input
+    else:
+        diff_images = np.zeros([1,80,80,1])
+    prev_input = c_observation_resize_bw
+    probability = model2.predict(diff_images.reshape(1,80,80,1))
+    if(random() < math.exp(-i/10000)):
+        probability[0][0] = 1-probability[0][0]
+        probability[0][1] = 1-probability[0][1] 
+    if(i%1000==0):
+        print("probability[0][0]: ",probability[0][0],"probability[0][1]: ",probability[0][1])
+    #print(probability)
+    #action = UP_ACTION if np.random.uniform() < probability else DOWN_ACTION
+    if(probability[0][0] >= probability[0][1]):
+        action = UP_ACTION  
+        y = [1,0]
+    else:
+        action = DOWN_ACTION
+        y = [0,1]
+    #print(y," ",i)
+    x_train.append(diff_images.reshape(1,80,80,1))
+    y_train.append(y)
+    #print(y_train)
+    #env.render(mode="rgb_array")
+    observation, reward, done, info = env.step(action)
+    rewards.append(reward)
+    reward_sum += reward
+    #print("i: ",i,"reward :",reward,"reward_sum: ",reward_sum,"done: ",done)
+    if (reward == -1 or reward == 1):
+        if(reward == 1):
+            wins+=1
+            restarted=0
+            print("win presntage: ",wins/episode_number)
+            print("total num of wins so far: ",wins)
+            print("at the end of episode:", episode_number,"the total reward was: ",reward_sum,"number of frames: ",len(y_train),"i: ",i)
+        else:
+            losses+=1
+            if(len(y_train) > 65 and restarted != 1):
+                print("ball was hit more then once !!!")
+                frameToChange = 7
+            else:
+                restarted=0
+                frameToChange = 20
+                for j in range(randrange(5,15)):
+                    numToChange =  randrange(0,len(y_train))
+                    y_train[numToChange] = [1-y_train[numToChange][0],1-y_train[numToChange][1]]
+            for j in range((len(y_train)-frameToChange),len(y_train)):
+                y_train[j] = [1-y_train[j][0],1-y_train[j][1]]
+            
+        #y_train = y_losses
+        #print("y_train")
+        #print(len(y_train))
+        #print("y_losses")
+        #print(len(y_losses))
+        #print("at the end of episode:", episode_number,"the total reward was: ",reward_sum,"number of frames: ",len(y_train),"i: ",i)
+        episode_number += 1
+        model2.fit(x=np.vstack(x_train),y=np.vstack(y_train),verbose=1)
+        x_train,y_train,y_losses,rewards= [],[],[],[]
+        #observation = env.reset()
+        if done:
+            observation = env.reset()
+            print("game restarted")
+            restarted=1
+        reward_sum = 0
+        prev_input = None
+print("number of games:", episode_number,"wins: ",wins,"losses: ",losses)
+model2.save('/data/py02/py02/ml/reinforceLearning/DQN/pong_model2_after1run')

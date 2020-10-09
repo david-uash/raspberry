@@ -1,2 +1,8 @@
 apt install vim-gtk
 pip3 install opencv-contrib-python==4.1.0.25
+wget https://github.com/lhelontra/tensorflow-on-arm/releases/download/v2.3.0/tensorflow-2.3.0-cp37-none-linux_armv7l.whl
+pip3 install tensorflow-2.3.0-cp37-none-linux_armv7l.whl 
+pip3 install keras
+pip3 install numpy pandas matplotlib
+apt install libhdf5-dev libhdf5-103 libhdf5-cpp-103 libatlas-base-dev libjasper-dev libqtgui4 python3-pyqt5  libqt4-test
+apt install fswebcam

@@ -9,13 +9,15 @@ import RPi.GPIO as GPIO
 import time
 import sys
 
-servoPIN = 17
+
+#servoPIN = 17 #empty one for test
+servoPIN = 26 #game servo 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(servoPIN, GPIO.OUT)
 
 p = GPIO.PWM(servoPIN, 50) # GPIO 17 for PWM with 50Hz
 
-p.start(2.5) # Initialization
+p.start(7.5) # Initialization
 
 myinput = input("enter num ([3.5=0deg],[7.5=90deg],[12.5=180deg] : ")
 while(str(myinput) != "999"):

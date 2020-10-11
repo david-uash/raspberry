@@ -106,7 +106,7 @@ print(model2.predict(circleDelta.reshape([1,circleDeltashape[0],circleDeltashape
 ###########
 
 ############################
-fig = plt.figure(figsize=(30,30))
+fig = plt.figure()#figsize=(30,30))
 plt1 = fig.add_subplot(5,2,1)
 plt.imshow(im001rgb)
 plt2 =fig.add_subplot(5,2,2)

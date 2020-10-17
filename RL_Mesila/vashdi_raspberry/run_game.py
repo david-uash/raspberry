@@ -4,7 +4,10 @@ import cv2
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import random
+from random import random
 import time
+import math
 
 import keras
 from keras.models import Sequential
@@ -77,10 +80,43 @@ gamma = 0.9
 wins = 0
 losses = 0 
 x_train,y_train = [],[]
+i_counter = 0 
 try:
+    _,previousImage = cap.read() 
+    im001 = cv2.medianBlur(previousImage,5)
+    im001 = im001[150:270,:]
+    im001gray  = cv2.cvtColor(im001,cv2.COLOR_BGR2GRAY)
+    (thresh,previousImageBW) = cv2.threshold(im001gray,180,255,cv2.THRESH_BINARY) #original threshold = 127 (now 180)
+    #im001rgb = cv2.cvtColor(im001,cv2.COLOR_BGR2RGB)
     while True:
+        _,currentImage = cap.read() 
+        im002 = cv2.medianBlur(currentImage,5)
+        im002 = im002[150:270,:]
+        im002gray  = cv2.cvtColor(im002,cv2.COLOR_BGR2GRAY)
+        (thresh,correntImageBW) = cv2.threshold(im002gray,180,255,cv2.THRESH_BINARY)
+        #im002rgb = cv2.cvtColor(im002,cv2.COLOR_BGR2RGB)
+        if(previousImageBW is not None): 
+          deltabw = (correntImageBW - previousImageBW)/255
+        else:
+            deltabw = np.zeros(correntImageBW.shpae)
+        predict = model2.predict(deltabw.reshape([1,circleDeltashape[0],circleDeltashape[1],1])) 
+        predict_value_to_servo = ((predict - 0.5)*2)*2
+        print("predict deltabw: ",predict)
+        if(random() < math.exp(-i/200)):
+            predict_value_to_servo = (-1)*predict_value_to_servo
+        if(i%10 == 0):
+            print("predict_value_to_servo: ",predict_value_to_servo)
+        x_train.append(deltabw.reshape([1,circleDeltashape[0],circleDeltashape[1],1]))
+        y_train.append(predict_value_to_servo)
+        currentImageBW = previousImageBW
+        ### to add check if one of the light switches has been pressed 
         print("doing stuff")
         time.sleep(1)
+
+
+
+
+
 except KeyboardInterrupt:
     print("interupted, stoping servo")
     p.stop()

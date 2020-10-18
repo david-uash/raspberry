@@ -22,6 +22,7 @@ import RPi.GPIO as GPIO
 
 
 
+
 ############
 ### INIT ###
 ############
@@ -35,6 +36,10 @@ GPIO.setup(servoPIN, GPIO.OUT)
 p = GPIO.PWM(servoPIN, 50) # GPIO 17 for PWM with 50Hz
 print("setting servo to 7.5 [90deg]")
 p.start(7.5) # Initialization
+
+
+
+
 
 
 ### INIT CAMERA ###
@@ -68,9 +73,20 @@ model2.add(Flatten())
 model2.add(Dense(units=32,activation='relu'))
 model2.add(Dense(units=1,activation='sigmoid'))
 model2.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
-print(model2.predict(np.zeros([1,circleDeltashape[0],circleDeltashape[1],1])))
+print(model2.predict(np.zeros([1,circleDeltashape[0],circleDeltashape[1],1])/255))
 #model2.predict(a) a.shape = (1, 120, 640, 1)
 ###########
+
+
+
+### INIT GPIO ###
+redpin = 22
+greenpin = 27
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(greenpin,GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
+#print("green: ",GPIO.input(greenpin))
+GPIO.setup(redpin,GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
+#print("red: ",GPIO.input(redpin))
 
 
 
@@ -80,7 +96,10 @@ gamma = 0.9
 wins = 0
 losses = 0 
 x_train,y_train = [],[]
-i_counter = 0 
+i_counter = 0
+cRoundCounter = 0
+lossesCounter = 0
+winsCounter = 0
 try:
     _,previousImage = cap.read() 
     im001 = cv2.medianBlur(previousImage,5)
@@ -89,6 +108,8 @@ try:
     (thresh,previousImageBW) = cv2.threshold(im001gray,180,255,cv2.THRESH_BINARY) #original threshold = 127 (now 180)
     #im001rgb = cv2.cvtColor(im001,cv2.COLOR_BGR2RGB)
     while True:
+        i+=1 
+        cRoundCounter += 1 
         _,currentImage = cap.read() 
         im002 = cv2.medianBlur(currentImage,5)
         im002 = im002[150:270,:]
@@ -98,20 +119,53 @@ try:
         if(previousImageBW is not None): 
           deltabw = (correntImageBW - previousImageBW)/255
         else:
-            deltabw = np.zeros(correntImageBW.shpae)
+            deltabw = np.zeros(correntImageBW.shpae)/255
         predict = model2.predict(deltabw.reshape([1,circleDeltashape[0],circleDeltashape[1],1])) 
         predict_value_to_servo = ((predict - 0.5)*2)*2
         print("predict deltabw: ",predict)
         if(random() < math.exp(-i/200)):
-            predict_value_to_servo = (-1)*predict_value_to_servo
+            print("choosing random number")
+            predict_value_to_servo = (random()-0.5)*2*2
         if(i%10 == 0):
             print("predict_value_to_servo: ",predict_value_to_servo)
+        p.ChangeDutyCycle(7.5 + float(predict_value_to_servo))
         x_train.append(deltabw.reshape([1,circleDeltashape[0],circleDeltashape[1],1]))
         y_train.append(predict_value_to_servo)
         currentImageBW = previousImageBW
+        if((GPIO.input(redpin) == 0) or (GPIO.input(greenpin) == 0)):
+            print("num of steps in this round : ",cRoundCounter)
+            lossesCounter += 1 
+            print("bring ball back to middle")
+            if(cRoundCounter < 3):
+                for j in range(1,len(y_train),1): 
+                    y_train[len(y_train)-j] *= (-1)
+            elif(cRoundCounter < 10):
+                for j in range(1,3,1): #start at 0 until 3 in steps of 1 (0,1,2) 
+                    y_train[len(y_train)-j] *= (-1)
+            else:
+                for j in range(1,6,1):
+                    y_train[len(y_train)-j] *= (-1)
+
+            print("adjasting model")
+            start_time = time.time()
+            model2.fit(x=np.vstack(x_train),y=np.vstack(y_train))
+            print("adjasting model took: ",time.time() - start_time)
+            x_train,y_train = [],[]
+            if((GPIO.input(redpin) == 0)):
+                print("ball at red gate")
+                p.ChangeDutyCycle(8.5)
+                time.sleep(1.5)
+                p.ChangeDutyCycle(7.2)
+            else:
+                print("ball at green gate")
+                p.ChangeDutyCycle(6.5)
+                time.sleep(1.5)
+                p.ChangeDutyCycle(7.8)
+
+            cRoundCounter = 0
+            
+            #PSILA
         ### to add check if one of the light switches has been pressed 
-        print("doing stuff")
-        time.sleep(1)
 
 
 

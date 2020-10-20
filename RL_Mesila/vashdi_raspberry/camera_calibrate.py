@@ -19,7 +19,7 @@ sleep(0.5)
 subprocess.run(["fswebcam","-r","1280x720","--no-banner","/home/pi/Desktop/im_web_001.jpg"])
 print("my program took ",time.time() - start_time," to run") 
 
-
+### add outer line ###
 start_time = time.time()
 im001 = cv2.imread("/home/pi/Desktop/im_web_001.jpg")
 im001 = cv2.medianBlur(im001,5)
@@ -31,6 +31,16 @@ width,height =640,480
 line_thickness = 2
 cv2.line(im001,(x1,y1),(x2,y2),(0,255,0),thickness=line_thickness)
 cv2.line(im001,(x3,y3),(x4,y4),(0,255,0),thickness=line_thickness)
+### add inner line ###
+x1,y1 = 0,195
+x2,y2 = 640,195
+x3,y3 = 0,225
+x4,y4 = 640,225
+width,height =640,480 
+line_thickness = 2
+cv2.line(im001,(x1,y1),(x2,y2),(0,0,255),thickness=line_thickness)
+cv2.line(im001,(x3,y3),(x4,y4),(0,0,255),thickness=line_thickness)
+
 #im001 = im001[150:270,:]
 #im002 = im002[150:270,:]
 im001gray  = cv2.cvtColor(im001,cv2.COLOR_BGR2GRAY)

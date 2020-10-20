@@ -29,8 +29,8 @@ _,im002 = cap.read()
 print("take 2 pic + 0.5sec took: ",time.time() - start_time)
 im001 = cv2.medianBlur(im001,5)
 im002 = cv2.medianBlur(im002,5)
-im001 = im001[120:300,:]
-im002 = im002[120:300,:]
+im001 = im001[150:270,:]
+im002 = im002[150:270,:]
 im001gray  = cv2.cvtColor(im001,cv2.COLOR_BGR2GRAY)
 im002gray  = cv2.cvtColor(im002,cv2.COLOR_BGR2GRAY)
 (thresh,im001bw) = cv2.threshold(im001gray,127,255,cv2.THRESH_BINARY)
@@ -41,10 +41,14 @@ deltabw = im002bw - im001bw
 
 circles1 = cv2.HoughCircles(im001bw,cv2.HOUGH_GRADIENT, dp=3.95,minDist=25,minRadius=30,maxRadius=70)
 if circles1 is not None:
-    print("found circle")
+    print("found circle in im001bw")
     circles1 = np.round(circles1[0,:]).astype("int")
     for (x,y,r) in circles1:
         print("x,y,r - "+str(x)+","+str(y)+","+str(r))
+        if(int(y) > 45 and int(y) < 75):
+            if(int(r) > 30 and int(r) < 45): 
+                print("found y in boundry, value of y: ",str(y))
+                print("found r in boundry, value of r: ",str(r))
         cv2.circle(im001rgb,(x,y),r,(0,255,0),4)
         cv2.rectangle(im001rgb,(x-5,y-5),(x+5,y+5),(0,128,255),-1)
 else:
@@ -53,10 +57,12 @@ else:
 
 circles2 = cv2.HoughCircles(im002bw,cv2.HOUGH_GRADIENT, dp=3.95,minDist=25,minRadius=30,maxRadius=70)
 if circles2 is not None:
-    print("found circle")
+    print("found circle in im002bw")
     circles2 = np.round(circles2[0,:]).astype("int")
     for (x,y,r) in circles2:
         print("x,y,r - "+str(x)+","+str(y)+","+str(r))
+        if(int(y) > 45 and int(y) < 75):
+            print("found y in boundry, value of y: ",str(y))
         cv2.circle(im002rgb,(x,y),r,(0,255,0),4)
         cv2.rectangle(im002rgb,(x-5,y-5),(x+5,y+5),(0,128,255),-1)
 else:
@@ -67,6 +73,7 @@ if((circles1 is not None) and (circles2 is not None)):
 
   circleDelta = np.zeros(im001bw.shape)
   for x,y,r in np.concatenate((circles1,circles2)):
+      print("concatenate")
       print("x,y,r - "+str(x)+","+str(y)+","+str(r))
       circleDelta[y-r:y+r,x-r:x+r] = im002bw[y-r:y+r,x-r:x+r] - im001bw[y-r:y+r,x-r:x+r]
 

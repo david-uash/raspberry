@@ -39,35 +39,46 @@ im001rgb = cv2.cvtColor(im001,cv2.COLOR_BGR2RGB)
 im002rgb = cv2.cvtColor(im002,cv2.COLOR_BGR2RGB)
 deltabw = im002bw - im001bw
 
-circles1 = cv2.HoughCircles(im001bw,cv2.HOUGH_GRADIENT, dp=3.95,minDist=25,minRadius=30,maxRadius=70)
+circles1 = cv2.HoughCircles(im001bw,cv2.HOUGH_GRADIENT, dp=3.95,minDist=25,minRadius=25,maxRadius=70)
 if circles1 is not None:
     print("found circle in im001bw")
     circles1 = np.round(circles1[0,:]).astype("int")
     for (x,y,r) in circles1:
         print("x,y,r - "+str(x)+","+str(y)+","+str(r))
         if(int(y) > 45 and int(y) < 75):
-            if(int(r) > 30 and int(r) < 45): 
+            if(int(r) < 52): 
                 print("found y in boundry, value of y: ",str(y))
                 print("found r in boundry, value of r: ",str(r))
+                #add if to check most of the value of pixel in the area of the point x,y
+                x1 = int(x)
         cv2.circle(im001rgb,(x,y),r,(0,255,0),4)
         cv2.rectangle(im001rgb,(x-5,y-5),(x+5,y+5),(0,128,255),-1)
 else:
     print("no circle found")
 
 
-circles2 = cv2.HoughCircles(im002bw,cv2.HOUGH_GRADIENT, dp=3.95,minDist=25,minRadius=30,maxRadius=70)
+circles2 = cv2.HoughCircles(im002bw,cv2.HOUGH_GRADIENT, dp=3.95,minDist=25,minRadius=25,maxRadius=70)
 if circles2 is not None:
     print("found circle in im002bw")
     circles2 = np.round(circles2[0,:]).astype("int")
     for (x,y,r) in circles2:
         print("x,y,r - "+str(x)+","+str(y)+","+str(r))
         if(int(y) > 45 and int(y) < 75):
-            print("found y in boundry, value of y: ",str(y))
+            if(int(r) < 52):
+                print("found y in boundry with currect r, value of y: ",str(y),"value of r: ",str(r))
+                #add if to check most of the value of pixel in the area of the point x,y
+                x2 = int(x)
         cv2.circle(im002rgb,(x,y),r,(0,255,0),4)
         cv2.rectangle(im002rgb,(x-5,y-5),(x+5,y+5),(0,128,255),-1)
 else:
     print("no circle found")
-
+try:
+    if(x2 is not None and x1 is not None):
+        deltaX = int(x2-x1)
+        print("### delta x2-x1 = ",str(deltaX)," ###")
+        print("normal value of delta x (x/640): ",float(deltaX/640))
+except NameError:
+    print("x1 or x2 were not found")
 circleDelta = np.zeros(im001bw.shape)
 if((circles1 is not None) and (circles2 is not None)):
 

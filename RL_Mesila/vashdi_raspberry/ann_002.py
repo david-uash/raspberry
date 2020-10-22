@@ -44,8 +44,8 @@ im001 = im001[150:270,:]
 im002 = im002[150:270,:]
 im001gray  = cv2.cvtColor(im001,cv2.COLOR_BGR2GRAY)
 im002gray  = cv2.cvtColor(im002,cv2.COLOR_BGR2GRAY)
-(thresh,im001bw) = cv2.threshold(im001gray,180,255,cv2.THRESH_BINARY)
-(thresh,im002bw) = cv2.threshold(im002gray,180,255,cv2.THRESH_BINARY)
+(thresh,im001bw) = cv2.threshold(im001gray,150,255,cv2.THRESH_BINARY)
+(thresh,im002bw) = cv2.threshold(im002gray,150,255,cv2.THRESH_BINARY)
 im001rgb = cv2.cvtColor(im001,cv2.COLOR_BGR2RGB)
 im002rgb = cv2.cvtColor(im002,cv2.COLOR_BGR2RGB)
 deltabw = im002bw - im001bw
@@ -102,24 +102,26 @@ print("my program took ",time.time() - start_time," to run")
 
 servo_angle = 90
 vector = np.array((x2,deltaX,servo_angle))
-
 ###########
 ### CNN ###
 ###########
-print(circleDelta.shape)
-circleDeltashape = circleDelta.shape
-circleDeltaAsInputShape = np.zeros([circleDeltashape[0],circleDeltashape[1],1])
-inputshape = circleDeltaAsInputShape.shape  #(120,640,1) #need to find how to set the size by the shape of circleDelta - (and add 1 to the shape !!!)
+#print(circleDelta.shape)
+#circleDeltashape = circleDelta.shape
+#circleDeltaAsInputShape = np.zeros([circleDeltashape[0],circleDeltashape[1],1])
+#inputshape = circleDeltaAsInputShape.shape  #(120,640,1) #need to find how to set the size by the shape of circleDelta - (and add 1 to the shape !!!)
+inputshape = vector.shape
 model2 = Sequential()
-model2.add(Conv2D(128,kernel_size=(2,2),input_shape=inputshape))
-model2.add(MaxPooling2D(pool_size=(2,2)))
-model2.add(Conv2D(32,(3,3),activation='relu'))
-model2.add(Flatten())
-model2.add(Dense(units=32,activation='relu'))
+#model2.add(Conv2D(8,kernel_size=(2,2),input_shape=inputshape))
+#model2.add(MaxPooling2D(pool_size=(2,2)))
+#model2.add(Conv2D(,(3,3),activation='relu'))
+#model2.add(Flatten())
+model2.add(Dense(12,input_dim=3,activation='relu'))
+model2.add(Dense(8,activation='relu'))
+model2.add(Dense(6,activation='relu'))
 model2.add(Dense(units=1,activation='sigmoid'))
 model2.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
-print(model2.predict(circleDelta.reshape([1,circleDeltashape[0],circleDeltashape[1],1])))
-#model2.predict(a) a.shape = (1, 120, 640, 1)
+print("the prediction for vector is: ",model2.predict(vector.reshape(1,3)))
+#model2.predict(np.zeros((1,3)))
 ###########
 
 

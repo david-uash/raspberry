@@ -1,7 +1,7 @@
-1) add if to check most of the value of pixel in the area of the point x,y
 2) values to add to cnn
 	1. delta x
         2. x2
         3. value of servo
+  modify the CNN 
 
 

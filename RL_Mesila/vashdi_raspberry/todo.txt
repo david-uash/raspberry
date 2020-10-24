@@ -1,7 +1,1 @@
-2) values to add to cnn
-	1. delta x
-        2. x2
-        3. value of servo
-  modify the CNN 
-
-
+1) add new light sensor to return ball to middle 

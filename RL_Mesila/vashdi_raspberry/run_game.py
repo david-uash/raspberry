@@ -67,7 +67,7 @@ model2 = Sequential()
 model2.add(Dense(12,input_dim=3,activation='relu'))
 model2.add(Dense(8,activation='relu'))
 model2.add(Dense(6,activation='relu'))
-model2.add(Dense(units=1,activation='relu'))
+model2.add(Dense(units=1,activation='sigmoid'))
 model2.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
 print("the prediction for vector is: ",model2.predict(vector.reshape(1,3)))
 #model2.predict(np.zeros((1,3)))
@@ -93,7 +93,7 @@ gamma = 0.9
 wins = 0
 losses = 0 
 x_train,y_train = [],[]
-predict_value_to_servo = ((0 - 0.5)*2)*2
+predict_value_to_servo = ((0 - 0.5)*2)*3.7
 i_counter = 0
 cRoundCounter = 0
 lossesCounter = 0
@@ -101,39 +101,71 @@ winsCounter = 0
 gamenumber=0
 circle1_set,circle2_set = False,False
 try:
-    _,previousImage = cap.read() 
-    im001 = cv2.medianBlur(previousImage,5)
-    im001 = im001[150:270,:]
-    im001gray  = cv2.cvtColor(im001,cv2.COLOR_BGR2GRAY)
-    (thresh,previousImageBW) = cv2.threshold(im001gray,180,255,cv2.THRESH_BINARY) #original threshold = 127 (now 180)
-    im001bw = previousImageBW 
-    #im001rgb = cv2.cvtColor(im001,cv2.COLOR_BGR2RGB)
-    circles1 = cv2.HoughCircles(im001bw,cv2.HOUGH_GRADIENT, dp=3.95,minDist=25,minRadius=25,maxRadius=70)
-    if circles1 is not None:
-        print("debug: found circle in im001bw")
-        circles1 = np.round(circles1[0,:]).astype("int")
-        for (x,y,r) in circles1:
-            print("debug: x,y,r - "+str(x)+","+str(y)+","+str(r))
-            if(int(y) > 45 and int(y) < 75):
-                if(int(r) < 60):
-                     sub_matrix = im001bw[y-15:y+15,x-15:x+15]
-                     print("debug: avg of sub matrix is: ",sub_matrix.mean())
-                     if(sub_matrix.mean() > 200):
-                        x1,y1,r1 = x,y,r
-                        circle1_set = True
-                        print("debug: average is above 200, x,y,z:",str(x1),str(y1),str(r1))
-                        #cv2.circle(im001rgb,(x,y),r,(0,255,0),4)
-                        #cv2.rectangle(im001rgb,(x-5,y-5),(x+5,y+5),(0,128,255),-1)
-    else:
-        print("debug: no circle found set x,y,r = 400,50,50")
-        x1,y1,r1 = 400,50,50
-    if(circle1_set != True):
-        x1,y1,r1 = 0,0,0
-    print("using x1,y1,r1: ",x1,y1,r1)
-    print("##############################################")
+#    _,previousImage = cap.read() 
+#    im001 = cv2.medianBlur(previousImage,5)
+#    im001 = im001[150:270,:]
+#    im001gray  = cv2.cvtColor(im001,cv2.COLOR_BGR2GRAY)
+#    (thresh,previousImageBW) = cv2.threshold(im001gray,180,255,cv2.THRESH_BINARY) #original threshold = 127 (now 180)
+#    im001bw = previousImageBW 
+#    #im001rgb = cv2.cvtColor(im001,cv2.COLOR_BGR2RGB)
+#    circles1 = cv2.HoughCircles(im001bw,cv2.HOUGH_GRADIENT, dp=3.95,minDist=25,minRadius=25,maxRadius=70)
+#    if circles1 is not None:
+#        print("debug: found circle in im001bw")
+#        circles1 = np.round(circles1[0,:]).astype("int")
+#        for (x,y,r) in circles1:
+#            print("debug: x,y,r - "+str(x)+","+str(y)+","+str(r))
+#            if(int(y) > 45 and int(y) < 75):
+#                if(int(r) < 60):
+#                     sub_matrix = im001bw[y-15:y+15,x-15:x+15]
+#                     print("debug: avg of sub matrix is: ",sub_matrix.mean())
+#                     if(sub_matrix.mean() > 200):
+#                        x1,y1,r1 = x,y,r
+#                        circle1_set = True
+#                        print("debug: average is above 200, x,y,z:",str(x1),str(y1),str(r1))
+#                        #cv2.circle(im001rgb,(x,y),r,(0,255,0),4)
+#                        #cv2.rectangle(im001rgb,(x-5,y-5),(x+5,y+5),(0,128,255),-1)
+#    else:
+#        print("debug: no circle found set x,y,r = 400,50,50")
+#        x1,y1,r1 = 400,50,50
+#    if(circle1_set != True):
+#        x1,y1,r1 = 0,0,0
+#    print("using x1,y1,r1: ",x1,y1,r1)
+#    print("##############################################")
     while True:
+        if(cRoundCounter == 0):
+            _,previousImage = cap.read()
+            im001 = cv2.medianBlur(previousImage,5)
+            im001 = im001[150:270,:]
+            im001gray  = cv2.cvtColor(im001,cv2.COLOR_BGR2GRAY)
+            (thresh,previousImageBW) = cv2.threshold(im001gray,180,255,cv2.THRESH_BINARY) #original threshold = 127 (now 180)
+            im001bw = previousImageBW
+            #im001rgb = cv2.cvtColor(im001,cv2.COLOR_BGR2RGB)
+            circles1 = cv2.HoughCircles(im001bw,cv2.HOUGH_GRADIENT, dp=3.95,minDist=25,minRadius=25,maxRadius=70)
+            if circles1 is not None:
+                print("debug: found circle in im001bw")
+                circles1 = np.round(circles1[0,:]).astype("int")
+                for (x,y,r) in circles1:
+                    print("debug: x,y,r - "+str(x)+","+str(y)+","+str(r))
+                    if(int(y) > 45 and int(y) < 75):
+                        if(int(r) < 60):
+                             sub_matrix = im001bw[y-15:y+15,x-15:x+15]
+                             print("debug: avg of sub matrix is: ",sub_matrix.mean())
+                             if(sub_matrix.mean() > 200):
+                                x1,y1,r1 = x,y,r
+                                circle1_set = True
+                                print("debug: average is above 200, x,y,z:",str(x1),str(y1),str(r1))
+                                #cv2.circle(im001rgb,(x,y),r,(0,255,0),4)
+                                #cv2.rectangle(im001rgb,(x-5,y-5),(x+5,y+5),(0,128,255),-1)
+            else:
+                print("debug: no circle found set x,y,r = 400,50,50")
+                x1,y1,r1 = 400,50,50
+            if(circle1_set != True):
+                x1,y1,r1 = 0,0,0
+            print("using x1,y1,r1: ",x1,y1,r1)
+            print("##############################################")
+
         i+=1 
-        cRoundCounter += 1 
+        cRoundCounter += 1
         _,currentImage = cap.read() 
         im002 = cv2.medianBlur(currentImage,5)
         im002 = im002[150:270,:]
@@ -168,25 +200,26 @@ try:
         print("debug: ### delta x2-x1 = ",str(deltaX)," ###")
         print("debug: normal value of delta x (x/640): ",float(deltaX/640))
         #circleDelta[y2-r2:y2+r2,x2-r2:x2+r2] = im002bw[y2-r2:y2+r2,x2-r2:x2+r2] - im001bw[y2-r2:y2+r2,x2-r2:x2+r2]
-
-        vector = np.array((deltaX,x2,predict_value_to_servo))
-        predict = model2.predict(vector.reshape(1,3))
-        predict_value_to_servo = ((predict[0][0] - 0.5)*2)*2
         
+        vector = np.array((deltaX/640,x2/640,predict_value_to_servo/7.5+0.5))
+        predict = model2.predict(vector.reshape(1,3))
+        predict_value_to_servo = ((predict[0][0] - 0.5)*2)*3.7
+            
+        x_train.append(vector)
+        y_train.append(predict_value_to_servo)
+
         x1,y1,r1 = x2,y2,r2
 
 
 
         print("debug: predict deltabw: ",predict)
-        if(random() < math.exp(-i/200)):
-            print("debug: choosing random number")
-            randomnumber = randint(1,20)
-            predict_value_to_servo = (i-10)/2.7
+        #if(random() < math.exp(-i/200)):
+        #    print("debug: choosing random number")
+        #    randomnumber = randint(1,20)
+        #    predict_value_to_servo = (randomnumber-10)/2.7
         if(i%10 == 0):
             print("predict_value_to_servo: ",predict_value_to_servo)
         p.ChangeDutyCycle(7.5 + float(predict_value_to_servo))
-        x_train.append(vector)
-        y_train.append(predict_value_to_servo)
         currentImageBW = previousImageBW
         if((GPIO.input(redpin) == 0) or (GPIO.input(greenpin) == 0)):
             print("num of steps in this round : ",cRoundCounter)

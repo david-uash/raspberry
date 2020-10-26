@@ -1,1 +1,4 @@
-1) add new light sensor to return ball to middle 
+1) add new light sensor to return ball to middle
+2) fix pysical model (paint all in black, fix rail with support)
+3) normalize the random numbers - (only in random, need to check if to use relu or sigmoid)
+4) check why accurecy was 0 at 7 steps

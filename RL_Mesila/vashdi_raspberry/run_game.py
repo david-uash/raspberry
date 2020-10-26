@@ -6,6 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import random
 from random import random
+from random import randint
 import time
 import math
 
@@ -66,7 +67,7 @@ model2 = Sequential()
 model2.add(Dense(12,input_dim=3,activation='relu'))
 model2.add(Dense(8,activation='relu'))
 model2.add(Dense(6,activation='relu'))
-model2.add(Dense(units=1,activation='sigmoid'))
+model2.add(Dense(units=1,activation='relu'))
 model2.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
 print("the prediction for vector is: ",model2.predict(vector.reshape(1,3)))
 #model2.predict(np.zeros((1,3)))
@@ -97,6 +98,7 @@ i_counter = 0
 cRoundCounter = 0
 lossesCounter = 0
 winsCounter = 0
+gamenumber=0
 circle1_set,circle2_set = False,False
 try:
     _,previousImage = cap.read() 
@@ -178,7 +180,8 @@ try:
         print("debug: predict deltabw: ",predict)
         if(random() < math.exp(-i/200)):
             print("debug: choosing random number")
-            predict_value_to_servo = (random()-0.5)*2*2
+            randomnumber = randint(1,20)
+            predict_value_to_servo = (i-10)/2.7
         if(i%10 == 0):
             print("predict_value_to_servo: ",predict_value_to_servo)
         p.ChangeDutyCycle(7.5 + float(predict_value_to_servo))
@@ -193,10 +196,10 @@ try:
                 for j in range(1,len(y_train),1): 
                     y_train[len(y_train)-j] *= (-1)
             elif(cRoundCounter < 10):
-                for j in range(1,3,1): #start at 0 until 3 in steps of 1 (0,1,2) 
+                for j in range(1,2,1): #start at 0 until 3 in steps of 1 (0,1,2) 
                     y_train[len(y_train)-j] *= (-1)
             else:
-                for j in range(1,6,1):
+                for j in range(1,4,1):
                     y_train[len(y_train)-j] *= (-1)
 
             print("adjasting model")
@@ -205,24 +208,37 @@ try:
             print("adjasting model took: ",time.time() - start_time)
             x_train,y_train = [],[]
             time.sleep(2)
-
+            dc = 7.5 + float(predict_value_to_servo)
             if((GPIO.input(redpin) == 0)):
                 print("ball at red gate")
-                p.ChangeDutyCycle(4.5)
-                time.sleep(1.8)
-                p.ChangeDutyCycle(9)
-                time.sleep(0.77)
-                p.ChangeDutyCycle(7.2)
+                while((GPIO.input(redpin) == 0)):
+                    time.sleep(0.35)
+                    dc = dc + 0.1
+                    p.ChangeDutyCycle(dc)
+                p.ChangeDutyCycle(8)
+                #time.sleep(0.1)
+                #p.ChangeDutyCycle(4.5)
+                #time.sleep(1.8)
+                #p.ChangeDutyCycle(9)
+                #time.sleep(0.77)
+                #p.ChangeDutyCycle(6.5)
             else:
                 print("ball at green gate")
-                p.ChangeDutyCycle(9.5)
-                time.sleep(1.8)
-                p.ChangeDutyCycle(4.5)
-                time.sleep(0.67)
-                p.ChangeDutyCycle(7.7)
-            time.sleep(0.3)
+                while((GPIO.input(greenpin) == 0)):
+                    time.sleep(0.35)
+                    dc = dc - 0.1
+                    p.ChangeDutyCycle(dc)
+                p.ChangeDutyCycle(7)
+                #time.sleep(0.1)
+                #p.ChangeDutyCycle(9.5)
+                #time.sleep(1.8)
+                #p.ChangeDutyCycle(4.5)
+                #time.sleep(0.67)
+                #p.ChangeDutyCycle(8.3)
+            time.sleep(0.15)
             cRoundCounter = 0
-            print("debug: starting to play again")            
+            gamenumber = gamenumber + 1
+            print("debug: starting to play again, game number:",gamenumber)            
             #PSILA
         ### to add check if one of the light switches has been pressed 
 

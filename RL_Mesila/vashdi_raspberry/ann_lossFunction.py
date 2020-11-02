@@ -13,7 +13,8 @@ model2.add(Dense(8,activation='relu'))
 model2.add(Dense(6,activation='relu'))
 model2.add(Dense(units=1,activation='sigmoid'))
 #model2.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
-model2.compile(loss='CategoricalCrossentropy',optimizer='adam',metrics=['accuracy'])
+#model2.compile(loss='CategoricalCrossentropy',optimizer='adam',metrics=['accuracy'])
+model2.compile(loss='mean_squared_error',optimizer='adam',metrics=['mse'])
 print("the prediction for vector is: ",model2.predict(np.zeros(3).reshape(1,3)))
 
 
@@ -33,14 +34,25 @@ model2.fit(x=vector2,y=predict2)
 
 x_train=[]
 y_train=[]
-for i in range(1,1000):
+for i in range(1,50):
   vector2 = np.array((random.randint(1,100),random.randint(1,100),random.randint(1,100))).reshape(1,3)
   predict2 = model2.predict(vector2)
-#  print("vector2",vector2)
-#  print("predict2",predict2)
+  #print("vector2",vector2)
+  #print("predict2",predict2)
   x_train.append(vector2)
   y_train.append(predict2)
-  
+
+x_train=[]
+y_train=[]
+for i in range(1,50):
+  vector2 = np.array((random.randint(1,100),random.randint(1,100),random.randint(1,100))).reshape(1,3)
+  predict2 = model2.predict(vector2)
+  #print("vector2",vector2)
+  #print("predict2",predict2)
+  x_train.append(vector2)
+  y_train.append(1-predict2)
+
+
   
 x_train=[]
 y_train=[]

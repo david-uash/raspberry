@@ -38,11 +38,6 @@ p = GPIO.PWM(servoPIN, 50) # GPIO 17 for PWM with 50Hz
 print("setting servo to 7.5 [90deg]")
 p.start(7.5) # Initialization
 
-
-
-
-
-
 ### INIT CAMERA ###
 ###################################
 ### Read from Video (Streaming) ###
@@ -68,9 +63,16 @@ model2.add(Dense(12,input_dim=3,activation='relu'))
 model2.add(Dense(8,activation='relu'))
 model2.add(Dense(6,activation='relu'))
 model2.add(Dense(units=1,activation='sigmoid'))
-model2.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
+#model2.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
+#model2.compile(loss='CategoricalCrossentropy',optimizer='adam',metrics=['accuracy'])
+model2.compile(loss='mean_squared_error',optimizer='adam',metrics=['mse'])
 print("the prediction for vector is: ",model2.predict(vector.reshape(1,3)))
+print("the prediction for vector is: ",model2.predict(np.zeros(3).reshape(1,3)))
 #model2.predict(np.zeros((1,3)))
+############################################
+
+
+
 
 ###########
 
@@ -99,39 +101,11 @@ cRoundCounter = 0
 lossesCounter = 0
 winsCounter = 0
 gamenumber=0
+i=0
 circle1_set,circle2_set = False,False
 try:
-#    _,previousImage = cap.read() 
-#    im001 = cv2.medianBlur(previousImage,5)
-#    im001 = im001[150:270,:]
-#    im001gray  = cv2.cvtColor(im001,cv2.COLOR_BGR2GRAY)
-#    (thresh,previousImageBW) = cv2.threshold(im001gray,180,255,cv2.THRESH_BINARY) #original threshold = 127 (now 180)
-#    im001bw = previousImageBW 
-#    #im001rgb = cv2.cvtColor(im001,cv2.COLOR_BGR2RGB)
-#    circles1 = cv2.HoughCircles(im001bw,cv2.HOUGH_GRADIENT, dp=3.95,minDist=25,minRadius=25,maxRadius=70)
-#    if circles1 is not None:
-#        print("debug: found circle in im001bw")
-#        circles1 = np.round(circles1[0,:]).astype("int")
-#        for (x,y,r) in circles1:
-#            print("debug: x,y,r - "+str(x)+","+str(y)+","+str(r))
-#            if(int(y) > 45 and int(y) < 75):
-#                if(int(r) < 60):
-#                     sub_matrix = im001bw[y-15:y+15,x-15:x+15]
-#                     print("debug: avg of sub matrix is: ",sub_matrix.mean())
-#                     if(sub_matrix.mean() > 200):
-#                        x1,y1,r1 = x,y,r
-#                        circle1_set = True
-#                        print("debug: average is above 200, x,y,z:",str(x1),str(y1),str(r1))
-#                        #cv2.circle(im001rgb,(x,y),r,(0,255,0),4)
-#                        #cv2.rectangle(im001rgb,(x-5,y-5),(x+5,y+5),(0,128,255),-1)
-#    else:
-#        print("debug: no circle found set x,y,r = 400,50,50")
-#        x1,y1,r1 = 400,50,50
-#    if(circle1_set != True):
-#        x1,y1,r1 = 0,0,0
-#    print("using x1,y1,r1: ",x1,y1,r1)
-#    print("##############################################")
     while True:
+        print("i_counter:",i)
         if(cRoundCounter == 0):
             _,previousImage = cap.read()
             im001 = cv2.medianBlur(previousImage,5)
@@ -142,14 +116,14 @@ try:
             #im001rgb = cv2.cvtColor(im001,cv2.COLOR_BGR2RGB)
             circles1 = cv2.HoughCircles(im001bw,cv2.HOUGH_GRADIENT, dp=3.95,minDist=25,minRadius=25,maxRadius=70)
             if circles1 is not None:
-                print("debug: found circle in im001bw")
+                #print("debug: found circle in im001bw")
                 circles1 = np.round(circles1[0,:]).astype("int")
                 for (x,y,r) in circles1:
-                    print("debug: x,y,r - "+str(x)+","+str(y)+","+str(r))
+                    #print("debug: x,y,r - "+str(x)+","+str(y)+","+str(r))
                     if(int(y) > 45 and int(y) < 75):
                         if(int(r) < 60):
                              sub_matrix = im001bw[y-15:y+15,x-15:x+15]
-                             print("debug: avg of sub matrix is: ",sub_matrix.mean())
+                             #print("debug: avg of sub matrix for x,y,r",x,y,r," is: ",sub_matrix.mean())
                              if(sub_matrix.mean() > 200):
                                 x1,y1,r1 = x,y,r
                                 circle1_set = True
@@ -157,10 +131,12 @@ try:
                                 #cv2.circle(im001rgb,(x,y),r,(0,255,0),4)
                                 #cv2.rectangle(im001rgb,(x-5,y-5),(x+5,y+5),(0,128,255),-1)
             else:
-                print("debug: no circle found set x,y,r = 400,50,50")
+                #print("debug: no circle found set x,y,r = 400,50,50")
                 x1,y1,r1 = 400,50,50
             if(circle1_set != True):
-                x1,y1,r1 = 0,0,0
+                x1,y1,r1 = 400,50,50
+                #print("debug: no good circle found, using x1,y1,r1: ",x1,y1,r1)
+            circle1_set = False
             print("using x1,y1,r1: ",x1,y1,r1)
             print("##############################################")
 
@@ -174,14 +150,14 @@ try:
         im002bw = correntImageBW 
         circles2 = cv2.HoughCircles(im002bw,cv2.HOUGH_GRADIENT, dp=3.95,minDist=25,minRadius=25,maxRadius=70)
         if circles2 is not None:
-            print("debug: found circle in im002bw")
+            #print("debug: found circle in im002bw")
             circles2 = np.round(circles2[0,:]).astype("int")
             for (x,y,r) in circles2:
-                print("debug: x,y,r - "+str(x)+","+str(y)+","+str(r))
+                #print("debug: x,y,r - "+str(x)+","+str(y)+","+str(r))
                 if(int(y) > 45 and int(y) < 75):
                     if(int(r) < 60):
                         sub_matrix = im002bw[y-15:y+15,x-15:x+15]
-                        print("debug: avg of sub matrix is: ",sub_matrix.mean())
+                        #print("debug: avg of sub matrix is: ",sub_matrix.mean())
                         if(sub_matrix.mean() > 200):
                             x2,y2,r2 = x,y,r
                             circle2_set = True
@@ -189,16 +165,18 @@ try:
                             #cv2.circle(im002rgb,(x,y),r,(0,255,0),4)
                             #cv2.rectangle(im002rgb,(x-5,y-5),(x+5,y+5),(0,128,255),-1)
         else:
-            print("debug: no circle found set x,y,r same as before (x1,y1,r1)")
+            #print("debug: no circle found set x,y,r same as before (x1,y1,r1)")
             x2,y2,r2 = x1,y1,r1
         if(circle2_set != True):
             x2,y2,r2 = x1,y1,r1
+            #print("debug: no good circle found, using x1,y1,r1: ",x1,y1,r1)
             circle2_set = False
         print("using x2,y2,r2: ",x2,y2,r2)
+        print("##############################################")
         circleDelta = np.zeros(im001bw.shape)
         deltaX = int(x2-x1)
         print("debug: ### delta x2-x1 = ",str(deltaX)," ###")
-        print("debug: normal value of delta x (x/640): ",float(deltaX/640))
+        #print("debug: normal value of delta x (x/640): ",float(deltaX/640))
         #circleDelta[y2-r2:y2+r2,x2-r2:x2+r2] = im002bw[y2-r2:y2+r2,x2-r2:x2+r2] - im001bw[y2-r2:y2+r2,x2-r2:x2+r2]
         
         vector = np.array((deltaX/640,x2/640,predict_value_to_servo/7.5+0.5))
@@ -206,17 +184,17 @@ try:
         predict_value_to_servo = ((predict[0][0] - 0.5)*2)*3.7
             
         x_train.append(vector)
-        y_train.append(predict_value_to_servo)
+        y_train.append(predict)
 
         x1,y1,r1 = x2,y2,r2
 
 
 
         print("debug: predict deltabw: ",predict)
-        #if(random() < math.exp(-i/200)):
-        #    print("debug: choosing random number")
-        #    randomnumber = randint(1,20)
-        #    predict_value_to_servo = (randomnumber-10)/2.7
+        if(random() < math.exp(-i/200)):
+            randomnumber = randint(1,20)
+            predict_value_to_servo = (randomnumber-10)/2.7
+            print("debug: choosing random number:",predict_value_to_servo/7.5+0.5)
         if(i%10 == 0):
             print("predict_value_to_servo: ",predict_value_to_servo)
         p.ChangeDutyCycle(7.5 + float(predict_value_to_servo))
@@ -224,7 +202,7 @@ try:
         if((GPIO.input(redpin) == 0) or (GPIO.input(greenpin) == 0)):
             print("num of steps in this round : ",cRoundCounter)
             lossesCounter += 1 
-            print("bring ball back to middle")
+            #print("bring ball back to middle")
             if(cRoundCounter < 3):
                 for j in range(1,len(y_train),1): 
                     y_train[len(y_train)-j] *= (-1)
@@ -238,7 +216,7 @@ try:
             print("adjasting model")
             start_time = time.time()
             model2.fit(x=np.vstack(x_train),y=np.vstack(y_train))
-            print("adjasting model took: ",time.time() - start_time)
+            #print("adjasting model took: ",time.time() - start_time)
             x_train,y_train = [],[]
             time.sleep(2)
             dc = 7.5 + float(predict_value_to_servo)
@@ -248,7 +226,8 @@ try:
                     time.sleep(0.35)
                     dc = dc + 0.1
                     p.ChangeDutyCycle(dc)
-                p.ChangeDutyCycle(8)
+                time.sleep(0.35)
+                p.ChangeDutyCycle(7.7)
                 #time.sleep(0.1)
                 #p.ChangeDutyCycle(4.5)
                 #time.sleep(1.8)
@@ -261,7 +240,7 @@ try:
                     time.sleep(0.35)
                     dc = dc - 0.1
                     p.ChangeDutyCycle(dc)
-                p.ChangeDutyCycle(7)
+                p.ChangeDutyCycle(7.85)
                 #time.sleep(0.1)
                 #p.ChangeDutyCycle(9.5)
                 #time.sleep(1.8)

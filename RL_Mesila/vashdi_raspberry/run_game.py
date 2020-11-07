@@ -201,15 +201,17 @@ try:
 
 
         print("debug: predict deltabw: ",predict)
-        if(random() < math.exp(-i/200)):
-            randomnumber = randint(1,20)
-            predict_value_to_servo = (randomnumber-10)/2.7
-            print("debug: choosing random number:",predict_value_to_servo/7.5+0.5)
+#        if(random() < math.exp(-i/200)):
+#            randomnumber = randint(1,20)
+#            predict_value_to_servo = (randomnumber-10)/2.7
+#            print("debug: choosing random number:",predict_value_to_servo/7.5+0.5)
         if(i%10 == 0):
             print("predict_value_to_servo: ",predict_value_to_servo)
         p.ChangeDutyCycle(7.5 + float(predict_value_to_servo))
         currentImageBW = previousImageBW
         if((GPIO.input(redpin) == 0) or (GPIO.input(greenpin) == 0)):
+            cv2.imshow("im002rgb",im002rgb)
+            cv2.waitKey(1)
             print("num of steps in this round : ",cRoundCounter)
             lossesCounter += 1 
             #print("bring ball back to middle")
@@ -230,14 +232,24 @@ try:
             x_train,y_train = [],[]
             time.sleep(2)
             dc = 7.5 + float(predict_value_to_servo)
+            middleCounter=0
+            start_time = time.time()
             if((GPIO.input(redpin) == 0)):
                 print("ball at red gate")
                 while((GPIO.input(redpin) == 0)):
                     time.sleep(0.35)
                     dc = dc + 0.1
                     p.ChangeDutyCycle(dc)
-                time.sleep(0.35)
-                p.ChangeDutyCycle(7.7)
+                while((GPIO.input(middlepin)==1)):
+                    middleCounter+=1
+                    if(middleCounter%500000==0):
+                        print("time for 1000 ops is",time.time()-start_time)
+                        start_time=time.time()
+                        dc = dc + 0.1
+                        if(dc >9):
+                            dc = 9
+                        p.ChangeDutyCycle(dc)
+                p.ChangeDutyCycle(4)
                 #time.sleep(0.1)
                 #p.ChangeDutyCycle(4.5)
                 #time.sleep(1.8)
@@ -250,14 +262,23 @@ try:
                     time.sleep(0.35)
                     dc = dc - 0.1
                     p.ChangeDutyCycle(dc)
-                p.ChangeDutyCycle(7.85)
+                while((GPIO.input(middlepin)==1)):
+                    middleCounter+=1
+                    if(middleCounter%500000==0):
+                        print("time for 1000 ops is",time.time()-start_time)
+                        start_time=time.time()
+                        dc = dc - 0.1
+                        if(dc<5.5):
+                            dc=5.5
+                        p.ChangeDutyCycle(dc)
+                p.ChangeDutyCycle(10.8)
                 #time.sleep(0.1)
                 #p.ChangeDutyCycle(9.5)
                 #time.sleep(1.8)
                 #p.ChangeDutyCycle(4.5)
                 #time.sleep(0.67)
                 #p.ChangeDutyCycle(8.3)
-            time.sleep(0.15)
+            time.sleep(0.25)
             cRoundCounter = 0
             gamenumber = gamenumber + 1
             print("debug: starting to play again, game number:",gamenumber)            

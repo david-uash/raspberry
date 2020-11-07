@@ -9,10 +9,10 @@ import matplotlib.pyplot as plt
 
 im001name = "web_im_001.jpg"
 im002name = "web_im_002.jpg"
-pic_delay = 2
-for i in range(pic_delay,0,-1):
-  print("take picture in: :"+str(i))
-  sleep(1)
+pic_delay = 1
+#for i in range(pic_delay,0,-1):
+#  print("take picture in: :"+str(i))
+#  sleep(1)
 start_time = time.time()
 subprocess.run(["fswebcam","-r","1280x720","--no-banner","/home/pi/Desktop/im_web_001.jpg"])
 sleep(0.5)

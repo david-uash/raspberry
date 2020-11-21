@@ -1,3 +1,2 @@
-1) add new light sensor to return ball to middle - fix return ro middle function to read the middlepin
-  1.1) fot the return to middle values (now set value to 500K, need to check )
-2) think maybe to add 2 light sensors for the return to middle function
+1) save model at the end of game (or ctrl+C)
+2) load old model or start from scrach

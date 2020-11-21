@@ -31,12 +31,17 @@ import RPi.GPIO as GPIO
 
 ### INIT SERVO ###
 #servoPIN = 17 #empty one for test
+gatePIN = 13 
+
 servoPIN = 26 #game servo
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(servoPIN, GPIO.OUT)
 p = GPIO.PWM(servoPIN, 50) # GPIO 17 for PWM with 50Hz
-print("setting servo to 7.5 [90deg]")
 p.start(7.5) # Initialization
+print("setting servo to 7.5 [90deg]")
+GPIO.setup(gatePIN, GPIO.OUT)
+gateservo = GPIO.PWM(gatePIN, 50) # GPIO 17 for PWM with 50Hz
+gateservo.start(7)
 
 ### INIT CAMERA ###
 ###################################
@@ -235,49 +240,29 @@ try:
             middleCounter=0
             start_time = time.time()
             if((GPIO.input(redpin) == 0)):
+                gateservo.ChangeDutyCycle(2)
                 print("ball at red gate")
                 while((GPIO.input(redpin) == 0)):
                     time.sleep(0.35)
-                    dc = dc + 0.1
+                    dc = dc + 0.25
                     p.ChangeDutyCycle(dc)
-                while((GPIO.input(middlepin)==1)):
-                    middleCounter+=1
-                    if(middleCounter%500000==0):
-                        print("time for 1000 ops is",time.time()-start_time)
-                        start_time=time.time()
-                        dc = dc + 0.1
-                        if(dc >9):
-                            dc = 9
-                        p.ChangeDutyCycle(dc)
-                p.ChangeDutyCycle(4)
-                #time.sleep(0.1)
-                #p.ChangeDutyCycle(4.5)
-                #time.sleep(1.8)
-                #p.ChangeDutyCycle(9)
-                #time.sleep(0.77)
-                #p.ChangeDutyCycle(6.5)
+                p.ChangeDutyCycle(dc+1)
+                time.sleep(1)
+                p.ChangeDutyCycle(7.5)
+                time.sleep(0.2)
+                gateservo.ChangeDutyCycle(7)
             else:
                 print("ball at green gate")
+                gateservo.ChangeDutyCycle(2)
                 while((GPIO.input(greenpin) == 0)):
                     time.sleep(0.35)
-                    dc = dc - 0.1
+                    dc = dc - 0.25
                     p.ChangeDutyCycle(dc)
-                while((GPIO.input(middlepin)==1)):
-                    middleCounter+=1
-                    if(middleCounter%500000==0):
-                        print("time for 1000 ops is",time.time()-start_time)
-                        start_time=time.time()
-                        dc = dc - 0.1
-                        if(dc<5.5):
-                            dc=5.5
-                        p.ChangeDutyCycle(dc)
-                p.ChangeDutyCycle(10.8)
-                #time.sleep(0.1)
-                #p.ChangeDutyCycle(9.5)
-                #time.sleep(1.8)
-                #p.ChangeDutyCycle(4.5)
-                #time.sleep(0.67)
-                #p.ChangeDutyCycle(8.3)
+                p.ChangeDutyCycle(dc-1)
+                time.sleep(1)
+                p.ChangeDutyCycle(7.5)
+                time.sleep(0.2)
+                gateservo.ChangeDutyCycle(7)
             time.sleep(0.25)
             cRoundCounter = 0
             gamenumber = gamenumber + 1
@@ -292,6 +277,7 @@ try:
 except KeyboardInterrupt:
     print("interupted, stoping servo")
     p.stop()
+    gateservo.stop()
     GPIO.cleanup()
 
 

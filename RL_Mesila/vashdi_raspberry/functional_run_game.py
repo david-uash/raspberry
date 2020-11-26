@@ -69,6 +69,23 @@ def findCirclesInImg(img000bw,im000color):
         my_x,my_y,my_r = 0,0,0
     return my_X,my_y,my_r
 
+def servoToDegree(servo_num):
+    predict_value_to_servo/7.5+0.5
+    return 
+
+
+def degreeToServo(servo_num):
+    predict_value_to_servo/7.5+0.5
+    return
+
+def numToServo(normal_num):
+    # this function get num (Between 0 to 1) and return the value fit for servo and degree
+    # i didnt check the angle of slop but assume that it changes between +-30 degrees
+    num_to_servo = ((normal_num - 0.5)*2)*3.7 
+    predict_degree = (normal_num - 0.5)*30
+    return num_to_servo,predict_degree
+
+
 
 ############
 ### INIT ###
@@ -147,7 +164,7 @@ gamma = 0.9
 wins = 0
 losses = 0 
 x_train,y_train = [],[]
-predict_value_to_servo = ((0 - 0.5)*2)*3.7
+predict_value_to_servo,predict_dgree = numToServo(0) #((0 - 0.5)*2)*3.7
 i_counter = 0
 cRoundCounter = 0
 lossesCounter = 0
@@ -160,29 +177,25 @@ try:
         print("i_counter:",i)
         if(cRoundCounter == 0):
             im001bw,im001bgr = takePicture()
-            #im001rgb = cv2.cvtColor(im001,cv2.COLOR_BGR2RGB)
+            #im001rgb = cv2.cvtColor(im001bgr,cv2.COLOR_BGR2RGB)
             x1,y1,r1 = findCirclesInImg(img001bw,im001bgr)
             if(x1==0 and y1==0 and r1==0):
                 x1,y1,r1 = 400,50,50
-                #print("debug: no good circle found, using x1,y1,r1: ",x1,y1,r1)
         print("using x1,y1,r1: ",x1,y1,r1)
 
         i+=1 
         cRoundCounter += 1
         im002bw,im002bgr = takePicture()
+        #im002rgb = cv2.cvtColor(im002bgr,cv2.COLOR_BGR2RGB)
         x2,y2,r2 = findCirclesInImg(img001bw,im002bgr)
         if(x1==0 and y1==0 and r1==0):
             x1,y1,r1 = 400,50,50
-            #print("debug: no good circle found, using x2,y2,r2: ",x2,y2,r2)
         print("using x2,y2,r2: ",x2,y2,r2)
         print("##############################################")
 
 
         circleDelta = np.zeros(im001bw.shape)
         deltaX = int(x2-x1)
-        print("debug: ### delta x2-x1 = ",str(deltaX)," ###")
-        #print("debug: normal value of delta x (x/640): ",float(deltaX/640))
-        #circleDelta[y2-r2:y2+r2,x2-r2:x2+r2] = im002bw[y2-r2:y2+r2,x2-r2:x2+r2] - im001bw[y2-r2:y2+r2,x2-r2:x2+r2]
         
         vector = np.array((deltaX/640,x2/640,predict_value_to_servo/7.5+0.5))
         predict = model2.predict(vector.reshape(1,3))

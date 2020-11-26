@@ -82,9 +82,14 @@ def numToServo(normal_num):
     # this function get num (Between 0 to 1) and return the value fit for servo and degree
     # i didnt check the angle of slop but assume that it changes between +-30 degrees
     num_to_servo = ((normal_num - 0.5)*2)*3.7 
-    predict_degree = (normal_num - 0.5)*30
+    predict_degree = (normal_num - 0.5)*60
     return num_to_servo,predict_degree
 
+def servoNumToNormalValue(servo_num):
+    # this function get the num we send to the servo motor and return the value between 0 to 1 
+    num_to_servo = ((normal_num - 0.5)*2)*3.7
+    normal_num = servo_num/7.5 + 0.5
+    return normal_num 
 
 
 ############
@@ -164,7 +169,7 @@ gamma = 0.9
 wins = 0
 losses = 0 
 x_train,y_train = [],[]
-predict_value_to_servo,predict_dgree = numToServo(0) #((0 - 0.5)*2)*3.7
+predict_value_to_servo,predict_degree = numToServo(0.5) #((0 - 0.5)*2)*3.7
 i_counter = 0
 cRoundCounter = 0
 lossesCounter = 0
@@ -181,7 +186,7 @@ try:
             x1,y1,r1 = findCirclesInImg(img001bw,im001bgr)
             if(x1==0 and y1==0 and r1==0):
                 x1,y1,r1 = 400,50,50
-        print("using x1,y1,r1: ",x1,y1,r1)
+            print("using x1,y1,r1: ",x1,y1,r1)
 
         i+=1 
         cRoundCounter += 1
@@ -196,13 +201,12 @@ try:
 
         circleDelta = np.zeros(im001bw.shape)
         deltaX = int(x2-x1)
-        
-        vector = np.array((deltaX/640,x2/640,predict_value_to_servo/7.5+0.5))
-        predict = model2.predict(vector.reshape(1,3))
-        predict_value_to_servo = ((predict[0][0] - 0.5)*2)*3.7
+        vector = np.array((deltaX/640,x2/640,predict_value_to_servo))
+        predict_next_value_to_servo_normal = model2.predict(vector.reshape(1,3))
+        predict_value_to_servo,predict_degree = numToServo((predict[0][0])
             
         x_train.append(vector)
-        y_train.append(predict)
+        y_train.append(predict_next_value_to_servo_normal)
 
         x1,y1,r1 = x2,y2,r2
 

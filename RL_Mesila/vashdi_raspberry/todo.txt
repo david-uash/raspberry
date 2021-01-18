@@ -1,4 +1,12 @@
+<<<<<<< HEAD
 1) update find ball parameters
 2) add lines every 50 pixel 
 3) save model at the end of game (or ctrl+C)
 4) load old model or start from scrach
+=======
+1) save model at the end of game (or ctrl+C)
+2) load old model or start from scrach
+3) continure functional_run_game (change all places with predict_value_to_servo)
+4) follow algorithem
+
+>>>>>>> 69d7e5942528e6dde474b8ec47e9b4590c1e1ff7

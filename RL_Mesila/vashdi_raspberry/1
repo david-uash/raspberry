@@ -156,8 +156,8 @@ try:
         im002bw = correntImageBW 
         im002rgb = cv2.cvtColor(im002,cv2.COLOR_BGR2RGB)
 #        cv2.imshow("im002rgb",im002gb)
-#        cv2.imshow("im002rgb",im002bw)
-#        cv2.waitKey(1)
+        cv2.imshow("im002rgb",im002bw)
+        cv2.waitKey(1)
 #        circles2 = cv2.HoughCircles(im002bw,cv2.HOUGH_GRADIENT, dp=3.95,minDist=25,minRadius=25,maxRadius=70)
         circles2 = cv2.HoughCircles(im002bw,cv2.HOUGH_GRADIENT, dp=3.95,minDist=1,minRadius=10,maxRadius=55)
         if circles2 is not None:
@@ -167,8 +167,8 @@ try:
                 cv2.circle(im002rgb,(x,y),r,(0,255,0),4)
                 cv2.rectangle(im002rgb,(x-5,y-5),(x+5,y+5),(0,128,255),-1)
 #                cv2.imshow("im002rgb",im002rgb)
-#                cv2.imshow("im002rgb",im002bw)
-#                cv2.waitKey(1)
+                cv2.imshow("im002rgb",im002bw)
+                cv2.waitKey(1)
                 #print("debug: x,y,r - "+str(x)+","+str(y)+","+str(r))
                 if(int(y) > 45 and int(y) < 75):
                     if(int(r) < 60):
@@ -223,10 +223,10 @@ try:
 
 
         print("debug: predict deltabw: ",predict)
-        if(random() < math.exp(-i/200)):
-            randomnumber = randint(1,20)
-            predict_value_to_servo = (randomnumber-10)/2.7
-            print("debug: choosing random number:",predict_value_to_servo/7.5+0.5)
+#        if(random() < math.exp(-i/200)):
+#            randomnumber = randint(1,20)
+#            predict_value_to_servo = (randomnumber-10)/2.7
+#             print("debug: choosing random number:",predict_value_to_servo/7.5+0.5)
         if(i%10 == 0):
             print("predict_value_to_servo: ",predict_value_to_servo)
         p.ChangeDutyCycle(7.5 + float(predict_value_to_servo))

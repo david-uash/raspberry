@@ -9,9 +9,9 @@ import RPi.GPIO as GPIO
 import time
 import sys
 
-
+servoPIN = 13 #gatePIN 
 #servoPIN = 17 #empty one for test
-servoPIN = 26 #game servo 
+#servoPIN = 26 #game servo 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(servoPIN, GPIO.OUT)
 

@@ -46,24 +46,24 @@ def findCirclesInImg(img000bw,im000color):
     my_circles = cv2.HoughCircles(img000bw,cv2.HOUGH_GRADIENT, dp=my_dp,minDist=my_minDist,minRadius=my_minRadius,maxRadius=my_maxRadius)
     if my_circles is not None:
         circles000 = np.round(my_circles[0,:]).astype("int")
-            for (x,y,r) in circles000:
-                cv2.circle(im000color,(x,y),r,(0,255,0),4)
-                cv2.rectangle(im000color,(x-5,y-5),(x+5,y+5),(0,128,255),-1)
-                cv2.imshow("im000color",im000color)
-                cv2.waitKey(1)
-                #print("debug: x,y,r - "+str(x)+","+str(y)+","+str(r))
-                if(int(y) > my_y_lowerlimit and int(y) < my_y_upperlimit):
-                    if(int(r) < my_r_upperlimit):
-                        sub_matrix = im000bw[y-15:y+15,x-15:x+15]
-                        #print("debug: avg of sub matrix is: ",sub_matrix.mean())
-                        if(sub_matrix.mean() > 200):
-                            my_x,my_y,my_r = x,y,r
-                            circle2_set = True
-                            #print("debug: average is above 200, x,y,z:",str(x),str(y),str(r))
-                            cv2.circle(im000color,(x,y),r,(0,255,0),4)
-                            cv2.rectangle(im000color,(x-5,y-5),(x+5,y+5),(0,128,255),-1)
-                            cv2.imshow("im000color",im000color)
-                            cv2.waitKey(1)
+        for (x,y,r) in circles000:
+            cv2.circle(im000color,(x,y),r,(0,255,0),4)
+            cv2.rectangle(im000color,(x-5,y-5),(x+5,y+5),(0,128,255),-1)
+            cv2.imshow("im000color",im000color)
+            cv2.waitKey(1)
+            #print("debug: x,y,r - "+str(x)+","+str(y)+","+str(r))
+            if(int(y) > my_y_lowerlimit and int(y) < my_y_upperlimit):
+                if(int(r) < my_r_upperlimit):
+                    sub_matrix = im000bw[y-15:y+15,x-15:x+15]
+                    #print("debug: avg of sub matrix is: ",sub_matrix.mean())
+                    if(sub_matrix.mean() > 200):
+                        my_x,my_y,my_r = x,y,r
+                        circle2_set = True
+                        #print("debug: average is above 200, x,y,z:",str(x),str(y),str(r))
+                        cv2.circle(im000color,(x,y),r,(0,255,0),4)
+                        cv2.rectangle(im000color,(x-5,y-5),(x+5,y+5),(0,128,255),-1)
+                        cv2.imshow("im000color",im000color)
+                        cv2.waitKey(1)
     else:
         #print("debug: no circle found set x,y,r = 400,50,50")
         my_x,my_y,my_r = 0,0,0
